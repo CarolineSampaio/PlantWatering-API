@@ -7,10 +7,10 @@ namespace PlantWatering.Api.Data.Interfaces;
 /// </summary>
 public interface IPlantRepository
 {
-    Task<IEnumerable<Plant>> GetAllAsync(CancellationToken cancellationToken = default);
-    Task<Plant?> GetByIdAsync(Guid id, CancellationToken cancellationToken = default);
+    Task<IEnumerable<Plant>> GetAllPlantsAsync(CancellationToken cancellationToken = default);
+    Task<Plant?> GetPlantByIdAsync(Guid id, CancellationToken cancellationToken = default);
     Task<IEnumerable<Plant>> GetPendingWateringAsync(CancellationToken cancellationToken = default);
-    Task<Plant> AddAsync(Plant plant, CancellationToken cancellationToken = default);
-    Task<bool> UpdateAsync(Plant plant, CancellationToken cancellationToken = default);
-    Task<bool> DeleteAsync(Guid id, CancellationToken cancellationToken = default);
+    Task<Plant> AddPlantAsync(Plant plant, CancellationToken cancellationToken = default);
+    Task<bool> UpdatePlantAsync(Plant plant, CancellationToken cancellationToken = default);
+    Task<bool> DeletePlantAsync(Guid id, CancellationToken cancellationToken = default);
 }
