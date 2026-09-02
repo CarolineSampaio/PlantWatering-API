@@ -19,8 +19,6 @@ jobs:
         uses: actions/setup-dotnet@v4
         with:
           dotnet-version: "10.0.x"
-          cache: true
-          cache-dependency-path: "**/*.csproj"
 
       - name: restaurar pacotes NuGet (Restore)
         run: dotnet restore PlantWatering.sln
@@ -31,6 +29,7 @@ jobs:
       - name: compilar solução (Build Solution)
         run: dotnet build PlantWatering.sln --configuration Release --no-restore
 
+      # verificação preventiva: garante que futuras dependencias NuGet nao possuam vulnerabilidades
       - name: auditoria de segurança nos pacotes NuGet (DevSecOps)
         run: dotnet list PlantWatering.sln package --vulnerable --include-transitive
 
