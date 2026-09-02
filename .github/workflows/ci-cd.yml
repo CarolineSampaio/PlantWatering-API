@@ -1,4 +1,4 @@
-name: Continuous Integration (CI)
+name: CI/CD Pipeline
 
 on:
   push:
@@ -7,7 +7,8 @@ on:
     branches: [main]
 
 jobs:
-  build-and-verify:
+  # CONTINUOUS INTEGRATION (CI)
+  build:
     name: build
     runs-on: ubuntu-latest
 
@@ -43,3 +44,39 @@ jobs:
           echo "| **Linter & Formatação** | ✅ Concluído | Código em conformidade com as regras C# |" >> $GITHUB_STEP_SUMMARY
           echo "| **Compilação (Release)** | ✅ Concluído | Build da Solution com 0 erros |" >> $GITHUB_STEP_SUMMARY
           echo "| **Auditoria de Vulnerabilidades** | ✅ Concluído | 0 vulnerabilidades conhecidas nos pacotes |" >> $GITHUB_STEP_SUMMARY
+
+  # CONTINUOUS DELIVERY (CD)
+  publish:
+    name: publish
+    runs-on: ubuntu-latest
+    needs: [build]
+
+    steps:
+      - name: checkout do repositório
+        uses: actions/checkout@v4
+
+      - name: configurar ambiente .NET 10
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: "10.0.x"
+
+      - name: publicar aplicação (Release Publish)
+        run: dotnet publish PlantWatering.Api/PlantWatering.Api.csproj --configuration Release --output ./publish
+
+      - name: armazenar artefato de produção (Upload Artifact)
+        uses: actions/upload-artifact@v4
+        with:
+          name: plantwatering-api-release
+          path: ./publish
+          retention-days: 7
+          overwrite: true
+
+      - name: gerar relatório do CD no GitHub Actions
+        if: success()
+        run: |
+          echo "### 🚀 Resumo do Continuous Delivery" >> $GITHUB_STEP_SUMMARY
+          echo "| Parâmetro | Valor |" >> $GITHUB_STEP_SUMMARY
+          echo "| :--- | :--- |" >> $GITHUB_STEP_SUMMARY
+          echo "| **Ambiente Alvo** | Staging / Pre-Production |" >> $GITHUB_STEP_SUMMARY
+          echo "| **Artefato Gerado** | \`plantwatering-api-release.zip\` |" >> $GITHUB_STEP_SUMMARY
+          echo "| **Status da Entrega** | ✅ Pronto para Deploy Contínuo |" >> $GITHUB_STEP_SUMMARY
