@@ -25,7 +25,7 @@ public static class PlantEndpoints
     }
 
     private static async Task<Ok<IEnumerable<Plant>>> GetAllPlants(
-        IPlantRepository repository, 
+        IPlantRepository repository,
         CancellationToken cancellationToken)
     {
         var plants = await repository.GetAllPlantsAsync(cancellationToken);
@@ -33,8 +33,8 @@ public static class PlantEndpoints
     }
 
     private static async Task<Results<Ok<Plant>, NotFound>> GetPlantById(
-        Guid id, 
-        IPlantRepository repository, 
+        Guid id,
+        IPlantRepository repository,
         CancellationToken cancellationToken)
     {
         var plant = await repository.GetPlantByIdAsync(id, cancellationToken);
@@ -42,7 +42,7 @@ public static class PlantEndpoints
     }
 
     private static async Task<Ok<IEnumerable<Plant>>> GetPendingWatering(
-        IPlantRepository repository, 
+        IPlantRepository repository,
         CancellationToken cancellationToken)
     {
         var pending = await repository.GetPendingWateringAsync(cancellationToken);
@@ -50,8 +50,8 @@ public static class PlantEndpoints
     }
 
     private static async Task<Results<CreatedAtRoute<Plant>, BadRequest<string>>> CreatePlant(
-        CreatePlantRequest request, 
-        IPlantRepository repository, 
+        CreatePlantRequest request,
+        IPlantRepository repository,
         CancellationToken cancellationToken)
     {
         try
@@ -74,9 +74,9 @@ public static class PlantEndpoints
     }
 
     private static async Task<Results<Ok<Plant>, NotFound, BadRequest<string>>> UpdatePlant(
-        Guid id, 
-        UpdatePlantRequest request, 
-        IPlantRepository repository, 
+        Guid id,
+        UpdatePlantRequest request,
+        IPlantRepository repository,
         CancellationToken cancellationToken)
     {
         var plant = await repository.GetPlantByIdAsync(id, cancellationToken);
@@ -98,8 +98,8 @@ public static class PlantEndpoints
     }
 
     private static async Task<Results<NoContent, NotFound>> DeletePlant(
-        Guid id, 
-        IPlantRepository repository, 
+        Guid id,
+        IPlantRepository repository,
         CancellationToken cancellationToken)
     {
         var deleted = await repository.DeletePlantAsync(id, cancellationToken);
@@ -107,8 +107,8 @@ public static class PlantEndpoints
     }
 
     private static async Task<Results<Ok<Plant>, NotFound>> WaterPlant(
-        Guid id, 
-        IPlantRepository repository, 
+        Guid id,
+        IPlantRepository repository,
         CancellationToken cancellationToken)
     {
         var plant = await repository.GetPlantByIdAsync(id, cancellationToken);

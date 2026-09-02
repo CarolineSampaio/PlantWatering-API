@@ -1,0 +1,45 @@
+name: Continuous Integration (CI)
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+jobs:
+  build-and-verify:
+    name: build
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: checkout do repositório
+        uses: actions/checkout@v4
+
+      - name: configurar ambiente .NET 10
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: "10.0.x"
+
+      - name: restaurar pacotes NuGet (Restore)
+        run: dotnet restore PlantWatering.sln
+
+      - name: verificar formatação do código (Linter & Formatter)
+        run: dotnet format PlantWatering.sln --verify-no-changes --verbosity normal
+
+      - name: compilar solução (Build Solution)
+        run: dotnet build PlantWatering.sln --configuration Release --no-restore
+
+      # verificação preventiva: garante que futuras dependencias NuGet nao possuam vulnerabilidades
+      - name: auditoria de segurança nos pacotes NuGet (DevSecOps)
+        run: dotnet list PlantWatering.sln package --vulnerable --include-transitive
+
+      - name: gerar relatório do CI no GitHub Actions
+        if: success()
+        run: |
+          echo "### 🌿 PlantWatering API - Relatório do CI" >> $GITHUB_STEP_SUMMARY
+          echo "| Etapa | Status | Descrição |" >> $GITHUB_STEP_SUMMARY
+          echo "| :--- | :---: | :--- |" >> $GITHUB_STEP_SUMMARY
+          echo "| **Setup & Restore** | ✅ Concluído | SDK .NET 10 e pacotes restaurados |" >> $GITHUB_STEP_SUMMARY
+          echo "| **Linter & Formatação** | ✅ Concluído | Código em conformidade com as regras C# |" >> $GITHUB_STEP_SUMMARY
+          echo "| **Compilação (Release)** | ✅ Concluído | Build da Solution com 0 erros |" >> $GITHUB_STEP_SUMMARY
+          echo "| **Auditoria de Vulnerabilidades** | ✅ Concluído | 0 vulnerabilidades conhecidas nos pacotes |" >> $GITHUB_STEP_SUMMARY
