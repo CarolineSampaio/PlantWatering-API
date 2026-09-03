@@ -26,7 +26,13 @@ A solução foi planejada focando em uma organização limpa e desacoplada:
 
 ```text
 PlantWatering-API/
+├── .github/
+│   └── workflows/
+│       └── ci-cd.yml
+├── .dockerignore
 ├── .gitignore
+├── docker-compose.yml
+├── Dockerfile
 ├── PlantWatering.sln
 ├── README.md
 └── PlantWatering.Api/
@@ -46,9 +52,9 @@ PlantWatering-API/
 ## Como Executar Localmente
 
 ### Pré-requisitos
-- [.NET 10 SDK](https://dotnet.microsoft.com/download) instalado.
+- [.NET 10 SDK](https://dotnet.microsoft.com/download) instalado **ou** [Docker Desktop](https://www.docker.com/products/docker-desktop/) instalado.
 
-### Executando a API
+### Opção 1: Executando com .NET CLI
 ```bash
 # restaurar dependencias e compilar a solucao
 dotnet build
@@ -57,12 +63,21 @@ dotnet build
 dotnet run --project PlantWatering.Api
 ```
 
+### Opção 2: Executando com Docker Compose
+```bash
+# subir a aplicacao em container com build automatico
+docker compose up --build
+
+# parar e remover os containers
+docker compose down
+```
+
 ---
 
 ## 📋 Roadmap da Disciplina
-- [ ] **Etapa 1:** Configuração do repositório, branch de feature, commits e Pull Request.
-- [ ] **Etapa 2:** Configuração dos Workflows no GitHub Actions para CI e CD.
-- [ ] **Etapa 3:** Containerização com Docker (`Dockerfile` e `docker-compose`).
+- [x] **Etapa 1:** Configuração do repositório, branch de feature, commits e Pull Request.
+- [x] **Etapa 2:** Configuração dos Workflows no GitHub Actions para CI e CD.
+- [x] **Etapa 3:** Containerização com Docker (`Dockerfile` e `docker-compose`).
 - [ ] **Etapa 4:** Execução do Kubernetes Playground e prática com os componentes do Kubernetes.
 - [ ] **Etapa 5:** Configuração de alertas automatizados do GitHub Actions (Discord, Slack, Microsoft Teams ou Telegram).
 - [ ] **Etapa 6:** Criação de pelo menos cinco testes unitários e execução automática dos testes nas Pull Requests via GitHub Actions.
