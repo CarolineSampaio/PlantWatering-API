@@ -1,0 +1,81 @@
+name: Discord Alerts
+
+on:
+  push:
+    branches:
+      - main
+      - "feature/**"
+  pull_request:
+    types: [opened, closed]
+    branches:
+      - main
+
+jobs:
+  notify-discord:
+    name: Notificar Discord
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout do Repositório
+        if: github.event_name == 'push'
+        uses: actions/checkout@v4
+
+      - name: Enviar Alerta de Commit
+        if: github.event_name == 'push'
+        uses: Sniddl/discord-commits@v1.8
+        with:
+          webhook: ${{ secrets.DISCORD_WEBHOOK }}
+          template: "avatar-with-link"
+          last-commit-only: true
+          include-extras: true
+
+      - name: Enviar Alerta de PR para o Discord
+        if: github.event_name == 'pull_request'
+        env:
+          DISCORD_WEBHOOK: ${{ secrets.DISCORD_WEBHOOK }}
+          PR_NUMBER: ${{ github.event.pull_request.number }}
+          PR_TITLE: ${{ github.event.pull_request.title }}
+          PR_URL: ${{ github.event.pull_request.html_url }}
+          PR_AUTHOR: ${{ github.event.pull_request.user.login }}
+          PR_BRANCH: ${{ github.event.pull_request.head.ref }}
+          BASE_BRANCH: ${{ github.event.pull_request.base.ref }}
+          ACTION: ${{ github.event.action }}
+          IS_MERGED: ${{ github.event.pull_request.merged }}
+        run: |
+          if [ "$IS_MERGED" = "true" ]; then
+            TITLE="🚀 Pull Request Mergeada na $BASE_BRANCH!"
+            COLOR=3066993
+            STATUS="✅ Concluído (Merged)"
+          elif [ "$ACTION" = "opened" ]; then
+            TITLE="🔀 Nova Pull Request Aberta #$PR_NUMBER"
+            COLOR=3447003
+            STATUS="🔍 Aguardando Revisão"
+          else
+            exit 0
+          fi
+
+          DESC="**Título:** $PR_TITLE"$'\n'"[Visualizar Pull Request no GitHub]($PR_URL)"
+          FLOW="\`$PR_BRANCH\` ➔ \`$BASE_BRANCH\`"
+
+          jq -n \
+            --arg title "$TITLE" \
+            --arg desc "$DESC" \
+            --arg author "$PR_AUTHOR" \
+            --arg flow "$FLOW" \
+            --arg status "$STATUS" \
+            --argjson color "$COLOR" \
+            '{
+              username: "PlantWatering Bot",
+              avatar_url: "https://github.githubassets.com/images/modules/logos_page/GitHub-Mark.png",
+              embeds: [{
+                title: $title,
+                description: $desc,
+                color: $color,
+                fields: [
+                  { name: "👤 Autor", value: $author, inline: true },
+                  { name: "🌿 Fluxo", value: $flow, inline: true },
+                  { name: "📌 Status", value: $status, inline: true }
+                ],
+                footer: { text: "PlantWatering DevOps • GitHub Actions" }
+              }]
+            }' | curl -H "Content-Type: application/json" -X POST -d @- "$DISCORD_WEBHOOK"
