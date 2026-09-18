@@ -11,16 +11,17 @@ on:
       - main
 
 jobs:
-  notify-commit:
-    name: Notificar Commit
-    if: github.event_name == 'push'
+  notify-discord:
+    name: Notificar Discord
     runs-on: ubuntu-latest
 
     steps:
       - name: Checkout do Repositório
+        if: github.event_name == 'push'
         uses: actions/checkout@v4
 
       - name: Enviar Alerta de Commit
+        if: github.event_name == 'push'
         uses: Sniddl/discord-commits@v1.8
         with:
           webhook: ${{ secrets.DISCORD_WEBHOOK }}
@@ -28,13 +29,8 @@ jobs:
           last-commit-only: true
           include-extras: true
 
-  notify-pull-request:
-    name: Notificar Pull Request
-    if: github.event_name == 'pull_request'
-    runs-on: ubuntu-latest
-
-    steps:
       - name: Enviar Alerta de PR para o Discord
+        if: github.event_name == 'pull_request'
         env:
           DISCORD_WEBHOOK: ${{ secrets.DISCORD_WEBHOOK }}
           PR_NUMBER: ${{ github.event.pull_request.number }}
