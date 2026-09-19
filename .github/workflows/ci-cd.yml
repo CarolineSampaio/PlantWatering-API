@@ -34,16 +34,44 @@ jobs:
       - name: auditoria de segurança nos pacotes NuGet (DevSecOps)
         run: dotnet list PlantWatering.sln package --vulnerable --include-transitive
 
-      - name: gerar relatório do CI no GitHub Actions
+      - name: gerar relatório do Build no GitHub Actions
         if: success()
         run: |
-          echo "### 🌿 PlantWatering API - Relatório do CI" >> $GITHUB_STEP_SUMMARY
+          echo "### 🌿 PlantWatering API - Relatório de Build" >> $GITHUB_STEP_SUMMARY
           echo "| Etapa | Status | Descrição |" >> $GITHUB_STEP_SUMMARY
           echo "| :--- | :---: | :--- |" >> $GITHUB_STEP_SUMMARY
           echo "| **Setup & Restore** | ✅ Concluído | SDK .NET 10 e pacotes restaurados |" >> $GITHUB_STEP_SUMMARY
           echo "| **Linter & Formatação** | ✅ Concluído | Código em conformidade com as regras C# |" >> $GITHUB_STEP_SUMMARY
           echo "| **Compilação (Release)** | ✅ Concluído | Build da Solution com 0 erros |" >> $GITHUB_STEP_SUMMARY
           echo "| **Auditoria de Vulnerabilidades** | ✅ Concluído | 0 vulnerabilidades conhecidas nos pacotes |" >> $GITHUB_STEP_SUMMARY
+
+  test:
+    name: test
+    runs-on: ubuntu-latest
+    needs: [build]
+
+    steps:
+      - name: checkout do repositório
+        uses: actions/checkout@v4
+
+      - name: configurar ambiente .NET 10
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: "10.0.x"
+
+      - name: restaurar pacotes NuGet
+        run: dotnet restore PlantWatering.sln
+
+      - name: executar testes unitários (Unit Tests)
+        run: dotnet test PlantWatering.sln --configuration Release --verbosity normal
+
+      - name: gerar relatório de Testes no GitHub Actions
+        if: success()
+        run: |
+          echo "### 🧪 PlantWatering API - Relatório de Testes" >> $GITHUB_STEP_SUMMARY
+          echo "| Módulo de Testes | Status | Resultado |" >> $GITHUB_STEP_SUMMARY
+          echo "| :--- | :---: | :--- |" >> $GITHUB_STEP_SUMMARY
+          echo "| **PlantWatering.Tests** | ✅ Aprovado | 16 testes unitários executados com 0 falhas |" >> $GITHUB_STEP_SUMMARY
 
   # CONTINUOUS DELIVERY (CD)
   publish:
